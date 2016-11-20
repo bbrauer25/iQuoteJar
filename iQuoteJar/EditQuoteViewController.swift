@@ -65,8 +65,6 @@ class EditQuoteViewController: UIViewController, UITableViewDataSource, UITableV
         var goodInput = true
         var badInputMessage = ""
         
-        let newQuote = NSEntityDescription.insertNewObjectForEntityForName("Quote", inManagedObjectContext: managedContext) as! Quote
-        
         if quoteTextField.text == "" {
             goodInput = false
             badInputMessage += " *ENTER QUOTE TEXT* "
@@ -77,6 +75,7 @@ class EditQuoteViewController: UIViewController, UITableViewDataSource, UITableV
         }
         
         if goodInput {
+            let newQuote = NSEntityDescription.insertNewObjectForEntityForName("Quote", inManagedObjectContext: managedContext) as! Quote
             newQuote.text = quoteTextField.text!
             newQuote.said_by = saidByTextField.text!
             newQuote.rating = Int16(ratingSlider.value)

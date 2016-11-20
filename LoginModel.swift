@@ -41,11 +41,7 @@ class LoginModel {
             let myJSON = JSON(data: data!)
             print(myJSON)
             self.loginJSON = myJSON
-            /*if let httpResponse = response as? NSHTTPURLResponse {
-                if httpResponse.statusCode == 200 {
-                    self.loginSuccessful = true
-                }
-            }*/
+
             if myJSON[0]["email"].string != nil {
                 self.loginSuccessful = true
                 print("login success")

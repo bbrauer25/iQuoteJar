@@ -169,8 +169,6 @@ class QuoteDataModel {
         for t in quote.tags {
             tagArray.append(String(t))
         }
-        let tagString = tagArray.description
-        //let tagJSONArray = JSON(tagArray)
         
         let json: [String: AnyObject] = ["user_id": quote.user_id, "text": quote.text, "said_by": quote.said_by, "rating": Int(quote.rating), "isFavorite": quote.isFavorite, "tags": quote.tags]
         print("json for quote:")
