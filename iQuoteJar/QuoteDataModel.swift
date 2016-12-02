@@ -57,6 +57,25 @@ class QuoteDataModel {
         }
     }
     
+    func deleteQuote(quote: String) {
+        let fetchRequest = NSFetchRequest(entityName: "Quote")
+        let quotePredicate = NSPredicate(format: "id = %@", quote)
+        fetchRequest.predicate = quotePredicate
+        do {
+            let quoteContents = try self.managedObjectContext.executeFetchRequest(fetchRequest) as! [Quote]
+            for q in quoteContents {
+                if q.id == "" {
+                    self.managedObjectContext.deleteObject(q)
+                } else {
+                    q.delete = true
+                }
+            }
+        } catch {
+            fatalError("Failed to fetch quotes: \(error)")
+        }
+    }
+    
+    
     func retrieveQuotes(userID: String) {
         self.queryComplete = false
         
@@ -112,6 +131,8 @@ class QuoteDataModel {
             quote.text = q["text"].string!
             quote.said_by = q["said_by"].string!
             quote.rating = q["rating"].number!.shortValue
+            quote.delete = false
+            quote.edit = false
             
             //placeholder need to work on tags
             var tagArray = [NSNumber]()
@@ -130,7 +151,7 @@ class QuoteDataModel {
         }
     }
     
-    func createQuotes(userID: String) {
+    func syncQuotes(userID: String) {
         let quoteRequest = NSFetchRequest(entityName: "Quote")
         var quotes = [Quote]()
         do {
@@ -140,21 +161,69 @@ class QuoteDataModel {
             print("failed fetch \(error.localizedDescription)")
         }
         
-        //if quote id doesn't exist - then add it
         for q in quotes {
             print(q.id)
+            //if quote id doesn't exist - then add it
             if q.id == "" {
                 print("Writing quote to database")
-                writeQuote(q)
+                writeQuoteToDB(q)
+                while self.queryComplete == false {
+                    usleep(20000)
+                }
+            } else if q.delete {
+                //if quote id exists, and delete flag set, delete it
+                print("Deleting quote from database")
+                deleteQuoteFromDB(q)
+                while self.queryComplete == false {
+                    usleep(20000)
+                }
+            } else if q.edit {
+                //if quote id exists, and edit flag set, edit it
+                print("Editing quote in database")
+                editQuoteInDB(q)
                 while self.queryComplete == false {
                     usleep(20000)
                 }
             }
         }
+        
         self.loadQuotes(userID)
     }
     
-    func writeQuote(quote: Quote) {
+    func deleteQuoteFromDB(quote: Quote) {
+        self.queryComplete = false
+        let deleteUrl = "http://localhost:3000/api/quotes"
+        let url: NSURL = NSURL(string: deleteUrl)!
+        let session = NSURLSession.sharedSession()
+        let request = NSMutableURLRequest(URL: url)
+        request.HTTPMethod = "DELETE"
+        let paramString = "{\"_id\":\"" + quote.id + "\"}"
+        print(paramString)
+        request.HTTPBody = paramString.dataUsingEncoding(NSUTF8StringEncoding)
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        let task = session.dataTaskWithRequest(request) {
+            (let data, let response, let error) in
+            
+            guard let _:NSData = data, let _:NSURLResponse = response  where error == nil else {
+                print("error")
+                return
+            }
+            
+            let myJSON = JSON(data: data!)
+            print("response from deleting in database")
+            print(myJSON)
+            self.queryComplete = true
+        }
+        task.resume()
+    }
+    
+    func editQuoteInDB(quote: Quote) {
+        self.queryComplete = false
+        
+        self.queryComplete = true
+    }
+    
+    func writeQuoteToDB(quote: Quote) {
         self.queryComplete = false
         
         let quoteJarUrl = "http://localhost:3000/api/quotes"

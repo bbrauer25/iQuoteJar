@@ -17,17 +17,31 @@ class EditQuoteViewController: UIViewController, UITableViewDataSource, UITableV
     @IBOutlet weak var ratingSlider: UISlider!
     @IBOutlet weak var isFavoriteSwitch: UISwitch!
     @IBOutlet weak var tableView: UITableView!
-    
+    var quoteText: String!
+    var quoteSaidBy: String!
+    var quoteRating: Float!
+    var quoteIsFavorite: String!
+    var userID: String! //passed from segue, user id from login
+    var tags = [(data: Tag, isSet: Bool)]()
+    var quoteID: String!
     
     @IBAction func SaveButton(sender: AnyObject) {
         saveQuote()
     }
-
-    var userID: String! //passed from segue, user id from login
-    var tags = [(data: Tag, isSet: Bool)]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        if (quoteID != nil) {
+            print("My QuoteID is: " + quoteID)
+            quoteTextField.text = quoteText
+            saidByTextField.text = quoteSaidBy
+            ratingSlider.value = quoteRating
+            if quoteIsFavorite! == "true" {
+                isFavoriteSwitch.on = true
+            } else {
+                isFavoriteSwitch.on = false
+            }
+        }
         self.tableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "cell")
         tableView.reloadData()
         /*if quote != nil {

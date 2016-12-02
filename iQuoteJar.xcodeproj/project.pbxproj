@@ -22,6 +22,7 @@
 		8577F3DA1DDF2B110086492B /* QuoteTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8577F3D91DDF2B110086492B /* QuoteTableViewCell.swift */; };
 		85A855631DE1FEA30032F74C /* SwiftyJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85A855621DE1FEA30032F74C /* SwiftyJSON.swift */; };
 		85A855651DE1FEC10032F74C /* LoginModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85A855641DE1FEC10032F74C /* LoginModel.swift */; };
+		85CA4D741DF1B87700CAD249 /* AddUserViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85CA4D731DF1B87700CAD249 /* AddUserViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,6 +55,7 @@
 		8577F3D91DDF2B110086492B /* QuoteTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QuoteTableViewCell.swift; sourceTree = "<group>"; };
 		85A855621DE1FEA30032F74C /* SwiftyJSON.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftyJSON.swift; sourceTree = "<group>"; };
 		85A855641DE1FEC10032F74C /* LoginModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LoginModel.swift; path = ../LoginModel.swift; sourceTree = "<group>"; };
+		85CA4D731DF1B87700CAD249 /* AddUserViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddUserViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -111,6 +113,7 @@
 				8545DA741DD73AC700A3E535 /* Quote.swift */,
 				8545DA7C1DDC85D200A3E535 /* Tag.swift */,
 				8545DA581DD73A6F00A3E535 /* iQuoteJar.xcdatamodeld */,
+				85CA4D731DF1B87700CAD249 /* AddUserViewController.swift */,
 			);
 			path = iQuoteJar;
 			sourceTree = "<group>";
@@ -233,6 +236,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8545DA7D1DDC85D200A3E535 /* Tag.swift in Sources */,
+				85CA4D741DF1B87700CAD249 /* AddUserViewController.swift in Sources */,
 				8545DA751DD73AC700A3E535 /* Quote.swift in Sources */,
 				8545DA541DD73A6F00A3E535 /* ViewController.swift in Sources */,
 				85A855651DE1FEC10032F74C /* LoginModel.swift in Sources */,

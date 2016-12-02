@@ -17,5 +17,7 @@ class Quote : NSManagedObject {
     @NSManaged var tags: [NSNumber]
     @NSManaged var text: String
     @NSManaged var said_by: String
+    @NSManaged var delete: Bool
+    @NSManaged var edit: Bool
 }
 

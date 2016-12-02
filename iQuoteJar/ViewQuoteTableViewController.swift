@@ -19,20 +19,57 @@ class ViewQuoteTableViewController: UITableViewController {
     var userID = ""
     let managedContext = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext
     var myQuoteDataModel = QuoteDataModel()
+    var quoteID: String!
+    var quoteText: String!
+    var quoteSaidBy: String!
+    var quoteRating: Int16!
+    var quoteIsFavorite: String!
+    var quoteTags: [NSNumber]!
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.tableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "cell")
         print(userID)
         loadTags()
+        //NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(UITableView.reloadData), name: "reloadData", object: nil)
         //loadQuotes()
         // Do any additional setup after loading the view, typically from a nib.
     }
     
     @IBAction func syncQuotes(sender: AnyObject) {
+        //deletes any deleted quotes
+        
+        //edits edited quotes
+        
         //pushes any new quotes to database
-        myQuoteDataModel.createQuotes(userID)
+        myQuoteDataModel.syncQuotes(userID)
+        
         updateQuotes()
+    }
+    
+    func reloadAfterDelete() {
+        let quoteRequest = NSFetchRequest(entityName: "Quote")
+        let quotePredicate = NSPredicate(format: "delete != true")
+        quoteRequest.predicate = quotePredicate
+        do {
+            let quoteResults = try managedContext.executeFetchRequest(quoteRequest) as? [Quote]
+            quotes = quoteResults!
+        } catch let error as NSError {
+            print("failed fetch \(error.localizedDescription)")
+        }
+
+        self.tableView.reloadData()
+    }
+    
+    func editQuote(quoteID: String, text: String, saidBy: String, rating: Int16, isFavorite: String, tags: [NSNumber]) {
+        self.quoteID = quoteID
+        self.quoteText = text
+        self.quoteSaidBy = saidBy
+        self.quoteRating = rating
+        self.quoteIsFavorite = isFavorite
+        self.quoteTags = tags
+        performSegueWithIdentifier("AddQuote", sender: nil)
     }
     
     override func viewDidAppear(animated: Bool) {
@@ -50,6 +87,8 @@ class ViewQuoteTableViewController: UITableViewController {
         }
             
         let quoteRequest = NSFetchRequest(entityName: "Quote")
+        let quotePredicate = NSPredicate(format: "delete != true")
+        quoteRequest.predicate = quotePredicate
         do {
             let quoteResults = try managedContext.executeFetchRequest(quoteRequest) as? [Quote]
             quotes = quoteResults!
@@ -151,6 +190,21 @@ class ViewQuoteTableViewController: UITableViewController {
                 }
             }
             editQuoteVC.userID = userID
+            
+            if quoteID != nil {
+                editQuoteVC.quoteID = quoteID
+                editQuoteVC.quoteText = quoteText
+                editQuoteVC.quoteSaidBy = quoteSaidBy
+                editQuoteVC.quoteRating = Float(quoteRating)
+                editQuoteVC.quoteIsFavorite = quoteIsFavorite
+                for t in quoteTags {
+                    for (i, eqt) in editQuoteVC.tags.enumerate() {
+                        if t == NSNumber(short: eqt.data.id) {
+                            editQuoteVC.tags[i].isSet = true
+                        }
+                    }
+                }
+            }
         }
     }
     
@@ -171,6 +225,13 @@ class ViewQuoteTableViewController: UITableViewController {
         cell.saidByLabel.text = "Said By: " + quote.said_by
         cell.ratingLabel.text = "Rating: " + String(quote.rating)
         cell.favoriteLabel.text = "Is Favorite: " + String(quote.isFavorite)
+        cell.quoteID = quote.id
+        cell.onDeleteButtonTapped = {
+            self.reloadAfterDelete()
+        }
+        cell.onEditButtonTapped = {
+            self.editQuote(quote.id, text: quote.text, saidBy: quote.said_by, rating: quote.rating, isFavorite: quote.isFavorite, tags: quote.tags)
+        }
         var tagsText = [String]()
         for tag in quote.tags {
             for t in tags {
