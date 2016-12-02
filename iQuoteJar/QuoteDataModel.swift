@@ -134,7 +134,6 @@ class QuoteDataModel {
             quote.delete = false
             quote.edit = false
             
-            //placeholder need to work on tags
             var tagArray = [NSNumber]()
             for (_, t) in q["tags"] {
                 var tagId: NSNumber
@@ -219,8 +218,43 @@ class QuoteDataModel {
     
     func editQuoteInDB(quote: Quote) {
         self.queryComplete = false
+        let putUrl = "http://localhost:3000/api/quotes"
+        let url: NSURL = NSURL(string: putUrl)!
+        let session = NSURLSession.sharedSession()
+        let request = NSMutableURLRequest(URL: url)
+        request.HTTPMethod = "PUT"
         
-        self.queryComplete = true
+        var tagArray = [String]()
+        for t in quote.tags {
+            tagArray.append(String(t))
+        }
+        
+        let json: [String: AnyObject] = ["_id": quote.id, "user_id": quote.user_id, "text": quote.text, "said_by": quote.said_by, "rating": Int(quote.rating), "isFavorite": quote.isFavorite, "tags": quote.tags]
+        print("json for quote:")
+        print(json)
+        do {
+            let jsonData = try NSJSONSerialization.dataWithJSONObject(json, options: .PrettyPrinted)
+            request.HTTPBody = jsonData
+        } catch let error as NSError {
+            print("failed json serialization \(error.localizedDescription)")
+        }
+        
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let task = session.dataTaskWithRequest(request) {
+            (let data, let response, let error) in
+            
+            guard let _:NSData = data, let _:NSURLResponse = response  where error == nil else {
+                print("error")
+                return
+            }
+            
+            let myJSON = JSON(data: data!)
+            print("response from writing to database")
+            print(myJSON)
+            self.queryComplete = true
+        }
+        task.resume()
     }
     
     func writeQuoteToDB(quote: Quote) {

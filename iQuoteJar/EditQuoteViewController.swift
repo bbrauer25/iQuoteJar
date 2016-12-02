@@ -89,27 +89,61 @@ class EditQuoteViewController: UIViewController, UITableViewDataSource, UITableV
         }
         
         if goodInput {
-            let newQuote = NSEntityDescription.insertNewObjectForEntityForName("Quote", inManagedObjectContext: managedContext) as! Quote
-            newQuote.text = quoteTextField.text!
-            newQuote.said_by = saidByTextField.text!
-            newQuote.rating = Int16(ratingSlider.value)
-            newQuote.user_id = userID
-            if isFavoriteSwitch.on {
-                newQuote.isFavorite = "true"
-            } else {
-                newQuote.isFavorite = "false"
-            }
-
-            var tagArray = [NSNumber]()
-            //iterate through cells in table view and add tags for any that are checked
-            for t in tags {
-                if t.isSet {
-                    tagArray.append(NSNumber(short: t.data.id))
+            if quoteID != nil {
+                let fetchRequest = NSFetchRequest(entityName: "Quote")
+                let quotePredicate = NSPredicate(format: "id = %@", quoteID)
+                fetchRequest.predicate = quotePredicate
+                do {
+                    let quoteContents = try managedContext.executeFetchRequest(fetchRequest) as! [Quote]
+                    for q in quoteContents {
+                        if q.id != "" {
+                            q.edit = true
+                        }
+                        q.text = quoteTextField.text!
+                        q.said_by = saidByTextField.text!
+                        q.rating = Int16(ratingSlider.value)
+                        if isFavoriteSwitch.on {
+                            q.isFavorite = "true"
+                        } else {
+                            q.isFavorite = "false"
+                        }
+                        
+                        var tagArray = [NSNumber]()
+                        //iterate through cells in table view and add tags for any that are checked
+                        for t in tags {
+                            if t.isSet {
+                                tagArray.append(NSNumber(short: t.data.id))
+                            }
+                        }
+                        q.tags = tagArray
+                        self.performSegueWithIdentifier("ShowViewQuotes", sender: self)
+                    }
+                } catch {
+                    fatalError("Failed to fetch quotes: \(error)")
                 }
+            } else {
+                let newQuote = NSEntityDescription.insertNewObjectForEntityForName("Quote", inManagedObjectContext: managedContext) as! Quote
+                newQuote.text = quoteTextField.text!
+                newQuote.said_by = saidByTextField.text!
+                newQuote.rating = Int16(ratingSlider.value)
+                newQuote.user_id = userID
+                if isFavoriteSwitch.on {
+                    newQuote.isFavorite = "true"
+                } else {
+                    newQuote.isFavorite = "false"
+                }
+
+                var tagArray = [NSNumber]()
+                //iterate through cells in table view and add tags for any that are checked
+                for t in tags {
+                    if t.isSet {
+                        tagArray.append(NSNumber(short: t.data.id))
+                    }
+                }
+                
+                newQuote.tags = tagArray
+                self.performSegueWithIdentifier("ShowViewQuotes", sender: self)
             }
-            
-            newQuote.tags = tagArray
-            self.performSegueWithIdentifier("ShowViewQuotes", sender: self)
         } else {
             badInputAlert(badInputMessage)
         }
